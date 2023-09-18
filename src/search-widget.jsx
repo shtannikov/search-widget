@@ -1,5 +1,9 @@
 import { useRef, useState } from 'react';
 import styled from 'styled-components';
+import { Container } from './components/Container';
+import { Row } from './components/Row';
+import { SearchIcon } from './components/SearchIcon';
+import { ResultBlock } from './components/ResultBlock';
 
 const Topics = [
     'Погода сегодня',
@@ -9,14 +13,14 @@ const Topics = [
 
 export function SearchWidget() {
     const [text, setText] = useState('');
-    const [active, setActive] = useState(true);
+    const [active, setActive] = useState(false);
 
     const containerRef = useRef();
     const inputRef = useRef();
 
     const handleBlur = (e) => {
         if (!containerRef.current.contains(e.relatedTarget))
-            setActive(true);
+            setActive(false);
     }
 
     const clearText = () => {
@@ -42,75 +46,8 @@ export function SearchWidget() {
                         </svg>
                 </Button>
             </Row>
-            <div hidden={ !active || Topics.length < 1 }>
-                <Divider/>
-                <ResultList >
-                    {
-                        Topics.map((topic) => (
-                            <ResultItem onClick={() => console.log('click')}>
-                                <Row>
-                                    <SearchIcon />
-                                    <div style={{ paddingBottom: '4px' }}>
-                                        {topic.toLowerCase()}
-                                    </div>
-                                </Row>
-                            </ResultItem>))
-                    }
-                </ResultList>
-            </div>
+            { active && (<ResultBlock items={Topics} />) }
     </Container>);
-}
-
-const mobileScreen = '(max-width: 767px)';
-const defaultBorder = '1px solid #dfe1e5';
-
-const Container = styled.div`
-    display: flex;
-    flex-flow: column;
-
-    width: 50%;
-    @media ${mobileScreen} {
-        width: 75%;
-    }
-    padding-top: 5px;
-    padding-bottom: 5px;
-
-    font-family: arial, sans-serif;
-    font-size: 14px;
-    color: #202124;
-
-    border: ${ defaultBorder };
-    box-shadow: none;
-    border-radius: 20px;
-
-    &.active,
-    &:hover {
-        box-shadow: 0 1px 6px rgba(32,33,36,.28);
-        border-color: rgba(223,225,229,0);
-    }
-`;
-
-const Row = styled.div`
-    display: flex;
-    flex-flow: row;
-    align-items: center;
-    gap: 5px;
-    margin: 0 10px;
-`;
-
-const iconSize = '18px';
-const Icon = styled.div`
-    height: ${ iconSize };
-    width: ${ iconSize };
-    fill: #9aa0a6;
-`;
-
-function SearchIcon() {
-    return (<Icon>
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-        </svg>
-    </Icon>);
 }
 
 const buttonSize = '20px';
@@ -132,24 +69,4 @@ const Input = styled.input`
     &:focus {
         outline: none;
     };
-`;
-
-const Divider = styled(Row)`
-    border-top: ${ defaultBorder };
-    padding-bottom: 4px;
-`;
-
-const ResultList = styled.ul`
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-`;
-
-const ResultItem = styled.li`
-    cursor: default;
-    padding: 5px 0;
-    &:hover {
-        border-radius: 15px;
-        background: #f8f9fa;
-    }
 `;
