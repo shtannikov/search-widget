@@ -9,16 +9,14 @@ const Topics = [
 
 export function SearchWidget() {
     const [text, setText] = useState('');
-    const [active, setActive] = useState(false);
+    const [active, setActive] = useState(true);
 
     const containerRef = useRef();
     const inputRef = useRef();
 
     const handleBlur = (e) => {
-        console.log(e.relatedTarget);
-        if (!containerRef.current.contains(e.relatedTarget)) {
-            setActive(false);
-        }
+        if (!containerRef.current.contains(e.relatedTarget))
+            setActive(true);
     }
 
     const clearText = () => {
@@ -26,35 +24,39 @@ export function SearchWidget() {
         inputRef.current.focus();
     }
 
-    return (<Container role='form' ref={containerRef}
+    return (<Container ref={containerRef}
         className={active && 'active'}
         tabIndex='0'
         onKeyDown={() => setActive(true)}
         onClick={() =>  setActive(true)}
         onFocus={() => inputRef.current?.focus()}
         onBlur={handleBlur}>
-            <SearchBlock>
-                <Icon>
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                    </svg>
-                </Icon>
+            <Row>
+                <SearchIcon />
                 <Input ref={inputRef} value={text} autoFocus
                     onChange={e => setText(e.target.value)}
                 />
-                <Button role='button' $active={!!text} onClick={clearText}>
+                <Button $active={!!text} onClick={clearText}>
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                         </svg>
                 </Button>
-            </SearchBlock>
-            <div hidden={!active}>
+            </Row>
+            <div hidden={ !active || Topics.length < 1 }>
                 <Divider/>
-                <ul>
+                <ResultList >
                     {
-                        Topics.map((topic) => (<li>{topic}</li>))
+                        Topics.map((topic) => (
+                            <ResultItem onClick={() => console.log('click')}>
+                                <Row>
+                                    <SearchIcon />
+                                    <div style={{ paddingBottom: '4px' }}>
+                                        {topic.toLowerCase()}
+                                    </div>
+                                </Row>
+                            </ResultItem>))
                     }
-                </ul>
+                </ResultList>
             </div>
     </Container>);
 }
@@ -66,16 +68,20 @@ const Container = styled.div`
     display: flex;
     flex-flow: column;
 
-    width: 500px;
+    width: 50%;
     @media ${mobileScreen} {
-        width: 80%;
+        width: 75%;
     }
+    padding-top: 5px;
+    padding-bottom: 5px;
 
-    padding: 0 1.25%;
+    font-family: arial, sans-serif;
+    font-size: 14px;
+    color: #202124;
 
     border: ${ defaultBorder };
     box-shadow: none;
-    border-radius: 24px;
+    border-radius: 20px;
 
     &.active,
     &:hover {
@@ -84,21 +90,28 @@ const Container = styled.div`
     }
 `;
 
-const SearchBlock = styled.div`
+const Row = styled.div`
     display: flex;
-    flex: 1;
-    flex-flow: row nowrap;
+    flex-flow: row;
     align-items: center;
     gap: 5px;
+    margin: 0 10px;
 `;
 
 const iconSize = '18px';
-
 const Icon = styled.div`
     height: ${ iconSize };
     width: ${ iconSize };
     fill: #9aa0a6;
 `;
+
+function SearchIcon() {
+    return (<Icon>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        </svg>
+    </Icon>);
+}
 
 const buttonSize = '20px';
 const Button = styled.div`
@@ -110,12 +123,8 @@ const Button = styled.div`
 `;
 
 const Input = styled.input`
-    font-family: arial,sans-serif;
-    font-size: 14px;
-
-    width: 100%;
-    height: 38px;
-    resize: none;
+    flex: 1;
+    height: 30px;
     padding-bottom: 4px;
 
     background-color: transparent;
@@ -125,7 +134,22 @@ const Input = styled.input`
     };
 `;
 
-const Divider = styled.div`
+const Divider = styled(Row)`
     border-top: ${ defaultBorder };
+    padding-bottom: 4px;
+`;
+
+const ResultList = styled.ul`
+    list-style-type: none;
+    padding: 0;
     margin: 0;
+`;
+
+const ResultItem = styled.li`
+    cursor: default;
+    padding: 5px 0;
+    &:hover {
+        border-radius: 15px;
+        background: #f8f9fa;
+    }
 `;
